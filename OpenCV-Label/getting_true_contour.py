@@ -155,8 +155,9 @@ for cir in circleLog:
     cir = np.round(cir[0, :]).astype("int")
 
     for (x, y, r) in cir:
-        cv2.circle(output, (x, y), r, (0, 0, 255), 2)
-        cv2.rectangle(output, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
+        cv2.circle(output, (x, y), r, (0, 0, 255), 1)
+        #cv2.rectangle(output, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
 
     cv2.imshow("output", np.hstack([orig_image, output]))
     cv2.waitKey(0)
+
