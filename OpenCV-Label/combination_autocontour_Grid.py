@@ -24,26 +24,52 @@ def show_window_with_user_setting(image, name, wait):
 
 def find_best_fitting_circle(img_file, threshold_value, correction_radius, show_circle = False):
 
+    # reading in the image and transforming it ot grayscale
     img = cv2.imread(img_file)
     gray = cv2.imread(img_file, cv2.IMREAD_GRAYSCALE)
-
-    print(gray.shape)
+    height = gray.shape[0]
+    width = gray.shape[1]
 
     # getting a binary image
-    _, thresh = cv2.threshold(gray,threshold_value,255,0)
+    _, thresh = cv2.threshold(gray, threshold_value, 255, 0)
 
-    element = cv2.getStructuringElement(shape=cv2.MORPH_RECT, ksize=(5, 5))
+    # finding all the contours in the image
+    element = cv2.getStructuringElement(shape=cv2.MORPH_RECT, ksize=(10, 10))   # adapt the kernel size to the picture size
     morph_img = thresh.copy()
-
     cv2.morphologyEx(src=thresh, op=cv2.MORPH_CLOSE, kernel=element, dst=morph_img)
-
     contours,_ = cv2.findContours(morph_img,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     areas = [cv2.contourArea(c) for c in contours]
+    sorted_areas = np.sort(areas)
+    cnt = contours[areas.index(sorted_areas[-1])]
 
-    if show_circle:
-        cv2.drawContours(img, contours, -1, (0,0, 255),3)
+    # finding the minEnclosingCircle
+    (x, y), radius = cv2.minEnclosingCircle(cnt)
+    center = (int(x), int(y))
+    radius = int(radius)  # manually added
+    circle_img = gray.copy()
+    cv2.circle(circle_img, center, radius, (255, 255, 255), 15)
+    show_window_with_user_setting(circle_img, 'with added circle', 0)
 
-    # subtracting the background of the contour
+    # making everything whithin the circle a 1 and everything outside a 0 and the other way round for a second mask
+
+    # within the circle: 1, outside of circle: 0
+    mask_circle_one = np.zeros([height, width], dtype=np.uint8)
+    mask_circle_one.fill(0)
+
+    # draw circle with ones
+    cv2.circle(mask_circle_one, center, radius - correction_radius, (1, 1, 1), -1)
+    show_window_with_user_setting(gray * mask_circle_one, 'mask_one', 0)
+
+    inside_circle = gray.copy()
+    inside_circle *= mask_circle_one
+
+    # within the circle: 0, outside of circle: 1
+    mask_circle_two = np.zeros([height, width], dtype=np.uint8)
+    mask_circle_two.fill(1)
+
+    # draw circle with ones
+    cv2.circle(mask_circle_two, center, radius - correction_radius, (0, 0, 0), -1)
+    show_window_with_user_setting(gray * mask_circle_two, 'mask_two', 0)
 
     # mask one
     stencil = np.zeros(shape = img.shape, dtype = np.uint8)
@@ -52,49 +78,40 @@ def find_best_fitting_circle(img_file, threshold_value, correction_radius, show_
     color_img = cv2.fillPoly(stencil, contours, color)
     mask_one = cv2.cvtColor(color_img, cv2.COLOR_BGR2GRAY)
 
-    if show_circle:
-        show_window_with_user_setting(mask_one*gray, 'with mask_one', 0)
-
     # mask two
     stencil_2 = np.zeros(shape=img.shape, dtype=np.uint8)
     stencil_2[:, :] = 255
     color_2 = 0, 0, 0
     color_img_2 = cv2.fillPoly(stencil_2, contours, color_2)
     mask_two = cv2.cvtColor(color_img_2, cv2.COLOR_BGR2GRAY)
+    mask_two = mask_two * mask_circle_two + mask_circle_one
+    show_window_with_user_setting(mask_two, 'mask_two', 0)
+
 
     img_final_masked = mask_one * gray + mask_two
 
-    if show_circle:
-        show_window_with_user_setting(img_final_masked, 'with mask_one and mask_two', 0)
+    # subtract the middle circle
+    img_final_masked *= mask_circle_two
 
-    sorted_areas = np.sort(areas)
-    cnt=contours[areas.index(sorted_areas[-1])] # the biggest contour
-
-    # min circle (green)
-    (x, y), radius = cv2.minEnclosingCircle(cnt)
-    center = (int(x), int(y))
-    radius = int(radius) # manually added
-    circle_img = img_final_masked.copy()
-    cv2.circle(circle_img, center, radius, (0, 255, 0), 5)
-
-    #ellipse = cv2.fitEllipse(cnt)
-    #cv2.ellipse(img_final_masked,ellipse,(0,255,0),5)
+    # add the original inside circle
+    img_final_masked += inside_circle
 
     if show_circle:
-        show_window_with_user_setting(img_final_masked, 'added_circle_img', 0)
+        show_window_with_user_setting(img_final_masked, 'with mask_one and mask_two ', 0)
+
     return img_final_masked, mask_two, int(x), int(y), radius
 
 ########################################################################################################################
-def picture_masked_cut(img_file, threshold_for_circle, border_distance,  show_circle=False, show_image_switch=False) :
+def picture_masked_cut_binary(img_file, threshold_for_circle, border_distance, threshold_binary, correction_radius, show_circle=False, show_image_switch=False) :
 
-    img, mask, x_center, y_center, radius = find_best_fitting_circle(img_file, threshold_for_circle, show_circle)
+    img, mask, x_center, y_center, radius = find_best_fitting_circle(img_file, threshold_for_circle, correction_radius, show_circle)
 
-    x_zero = x_center - radius
-    y_zero = y_center - radius
-    x_max = x_center + radius
-    y_max = y_center + radius
+    x_zero = x_center - (radius-border_distance)
+    y_zero = y_center - (radius-border_distance)
+    x_max = x_center + (radius-border_distance)
+    y_max = y_center + (radius-border_distance)
 
-    mask_circle_diameter = 2*radius-border_distance # diameter for big image
+    #mask_circle_diameter = 2*radius-border_distance # diameter for big image
 
     # display grid on top of image
     display_grid_switch = False
@@ -106,9 +123,13 @@ def picture_masked_cut(img_file, threshold_for_circle, border_distance,  show_ci
     cut_image = img[ y_zero:y_max, x_zero:x_max]
     cut_mask = mask[ y_zero:y_max, x_zero:x_max]
 
+    _, thresh = cv2.threshold(cut_image, threshold_binary, 255, 0)
+
     if show_image_switch:
         show_window_with_user_setting(cut_image, 'Image masked and cut', 0)
+        show_window_with_user_setting(thresh, 'Image masked and cut binary', 0)
         show_window_with_user_setting(cut_mask, 'Mask cut', 0)
+
 
     # show the mask
     #if show_image_switch:
@@ -144,7 +165,8 @@ def check_image_for_black_and_border(img_file, contour_file, grid_size, show_ima
 
     #vox_loc_dict = {}
     #vox_black_dict = {}
-    check_df = pd.DataFrame(columns = ['Voxel_name', 'num_x', 'num_y', 'location', 'detected'])
+    #check_df = pd.DataFrame(columns = ['Voxel_name', 'num_x', 'num_y', 'location', 'detected'])
+    check_array = np.empty([0, 4], dtype=int)
 
     height = img_file.shape[0]
     width = img_file.shape[1]
@@ -171,35 +193,40 @@ def check_image_for_black_and_border(img_file, contour_file, grid_size, show_ima
                 show_window_with_user_setting(cur_image, 'cur_image', 0)
 
             if np.any(cur_image[:, :] == 0):
-                text_1 = 1
+                text_1 = 1  # code for black is inside
             else:
-                text_1 = 0
+                text_1 = 0  # code for no black is inside
 
             if np.all(cur_image_mask[:, :] == 255):
-                text_2 = 'Outside'
+                text_2 = -1     # code for outside
             elif np.all(cur_image_mask[:, :] == 0):
-                text_2 = 'inside'
+                text_2 = 1   # code for inside
             else:
-                text_2 = 'border'
+                text_2 = 0   # code for border
 
-            check_df = check_df.append({'Voxel_name': 'Voxel_{}_{}'.format(j,i), 'num_x': j, 'num_y': i , 'location': text_2, 'detected':text_1}, ignore_index = True)
+            # check_df = check_df.append({'Voxel_name': 'Voxel_{}_{}'.format(j,i), 'num_x': j, 'num_y': i , 'location': text_2, 'detected':text_1}, ignore_index = True)
+            # combo_processed_array = np.empty([0, 4], dtype=int)
+            cur_arr = np.stack((j, i, text_2, text_1), axis=-1)
+            check_array = np.vstack((check_array, cur_arr))
 
-    return check_df
+    return check_array
 
 
 
 ########################################################################################################################
 if __name__ == "__main__":
-    img_file = '191223_ZP4_0546.tif'
-    #img = cv2.imread(img_file)
+    img_file = '191223_ZP4_0426.tif'
+
+    #find_best_fitting_circle(img_file, 190, 60, show_circle = True)
+
+
+    img = cv2.imread(img_file)
     show_window_with_user_setting( cv2.imread(img_file), 'Raw', 0)
-    frame_threshold, mask_two = picture_masked_cut(img_file, 140, 10, show_circle=True, show_image_switch=True)
+    frame_threshold, mask_two = picture_masked_cut_binary(img_file, 170, 10, 140, 60,  show_circle=True, show_image_switch=True)
 
+   # show_voxel_grid(300, frame_threshold)
 
-    #show_voxel_grid(300, frame_threshold)
+    #df = check_image_for_black_and_border(frame_threshold, mask_two, 300, show_image_switch=False)
 
-    #check_image_for_black_and_border(frame_threshold, mask_two, 30, show_image_switch=False)
-
-
-
+    #print(df)
 
