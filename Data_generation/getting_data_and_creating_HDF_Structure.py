@@ -37,7 +37,7 @@ def create_grid_data (num_slice):
 
     # 4. saving the data in a hdf5 file for each slice -> multiprocessing possible
 
-            path = path_destination_h5_folder + '_' + part_name + '_' + str(grid_size) + '.h5' # '/Slice_{}.hdf5'.format(num_slice)
+            path = path_destination_h5_folder + part_name + '_' + str(grid_size) + '.h5' # '/Slice_{}.hdf5'.format(num_slice)
 
             if not os.path.isfile(path):
                 grid_hdf = h5py.File(path, "w")
