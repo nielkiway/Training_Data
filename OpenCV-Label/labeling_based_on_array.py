@@ -43,13 +43,13 @@ frame_threshold, mask_two = picture_masked_cut_binary(img_file=image_path,
                                                       border_distance=10,
                                                       threshold_binary=140,
                                                       correction_radius=60,
-                                                      show_circle=False,
-                                                      show_image_switch=False)
+                                                      show_circle=True,
+                                                      show_image_switch=True)
 
 array, num_grid_x, num_grid_y = check_image_for_black_and_border(img_file = frame_threshold,
                                                                  contour_file=mask_two,
                                                                  grid_size_in_pixel = grid_size_in_pixel,
-                                                                 show_image_switch=False)
+                                                                 show_image_switch=True)
 
 #checking every single grid for its values in the grid array
 for x in range(num_grid_x):
