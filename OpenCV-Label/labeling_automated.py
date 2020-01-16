@@ -27,14 +27,14 @@ max_Slice = 1551
 threshold_binary = 120
 correction_radius = 20  # radius difference for moving in the contour circle
 
-grid_size_in_bit = 50
+grid_size_in_bit = 600
 max_diameter_bit = 1748
 
 csv_file_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP4/grid_size={}.csv'.format(str(grid_size_in_bit))
 img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP4/200113_ZP4_Bildstapel_50µm_700x746_1905bis7905/200113_ZP4_Bildstapel_50µm_700x746_1905bis7905_'
 
-show_images = False
-show_label_generation = False
+show_images = True
+show_label_generation = True
 
 # basic calculations
 max_diameter_pixel = xmax-xmin
