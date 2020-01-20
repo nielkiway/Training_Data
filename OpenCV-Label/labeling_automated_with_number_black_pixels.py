@@ -27,18 +27,18 @@ max_Slice = 1551
 threshold_binary = 120
 correction_radius = 20  # radius difference for moving in the contour circle
 
-threshold_porosity_abs = 5
+threshold_porosity_abs = 125
 # minimum number of pixels that must be black in order for the algorithm to classify the grid as pore-grid
 # needs to be set = 1 if no threshold should be applied
 
-grid_size_in_bit = 1800
+grid_size_in_bit = 874
 max_diameter_bit = 1748
 
-csv_file_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP4/grid_size={}.csv'.format(str(grid_size_in_bit))
+csv_file_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP4/grid_size={}_threshold_porosity={}.csv'.format(grid_size_in_bit, threshold_porosity_abs)
 img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP4/200113_ZP4_Bildstapel_50µm_700x746_1905bis7905/200113_ZP4_Bildstapel_50µm_700x746_1905bis7905_'
 
-show_images = True
-show_label_generation = True
+show_images = False
+show_label_generation = False
 
 # basic calculations
 max_diameter_pixel = xmax-xmin
@@ -49,9 +49,9 @@ number_slices_total = max_Slice-min_Slice
 
 # start image processing
 
-label_storage_array = np.empty([0, 5], dtype=int)
+label_storage_array = np.empty([0, 6], dtype=int)
 
-for img_number in range(683,684):
+for img_number in range(number_slices_total):
 
     cur_img_path = img_folder_path+'{:04d}.tif'.format(img_number)
 
@@ -164,14 +164,14 @@ for img_number in range(683,684):
         show_window_with_user_setting(arr, 'arr', 0)
 
     # labeling
-    check_array = np.empty([0, 5], dtype=int)
+    check_array = np.empty([0, 6], dtype=int)
 
     height = image_masked_and_cut_binary.shape[0]
     width = image_masked_and_cut_binary.shape[1]
 
     num_grid_x = math.ceil(width/grid_size_in_pixel)
     num_grid_y = math.ceil(height/grid_size_in_pixel)
-    total_num_pixels = height*width
+
 
     #print('num_grid_x ' + str(num_grid_x))
     #print('num_grid_y ' + str(num_grid_y))
@@ -196,7 +196,9 @@ for img_number in range(683,684):
             # edit here for setting a threshold or adding different categories
             # it is still just used for a binary classification here in this context
 
+            total_num_pixels = cur_image.shape[0]*cur_image.shape[1]
             num_black_pixels = total_num_pixels - cv2.countNonZero(cur_image)
+            print(num_black_pixels)
 
             if num_black_pixels >= threshold_porosity_abs:
                 text_1 = 1  # code for black is inside
@@ -216,12 +218,12 @@ for img_number in range(683,684):
             else:
                 text_2 = 0   # code for border
 
-            cur_arr = np.stack((img_number+min_Slice, j, i, text_2, text_1), axis=-1)
+            cur_arr = np.stack((img_number+min_Slice, j, i, text_2, text_1, num_black_pixels), axis=-1)
             # img_number + min slice is the current slice which is also stored
             check_array = np.vstack((check_array, cur_arr))
 
     label_storage_array = np.vstack((label_storage_array, check_array))
 
-label_df = pd.DataFrame(data = label_storage_array, columns=(['Slice', 'x-grid', 'y-grid', 'Position', 'Poren']))
+label_df = pd.DataFrame(data = label_storage_array, columns=(['Slice', 'x-grid', 'y-grid', 'Position', 'Poren', 'num Black pixels']))
 label_df.to_csv(csv_file_path)
 print('done')
