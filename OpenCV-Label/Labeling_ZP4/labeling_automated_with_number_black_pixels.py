@@ -21,7 +21,7 @@ import pandas as pd
 
 
 # input data
-min_Slice = 376
+min_Slice = 396
 max_Slice = 1551
 
 threshold_binary = 120
@@ -34,8 +34,8 @@ threshold_porosity_abs = 125
 grid_size_in_bit = 874
 max_diameter_bit = 1748
 
-csv_file_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP9/grid_size={}_threshold_porosity={}.csv'.format(grid_size_in_bit, threshold_porosity_abs)
-img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP9/201315_ZP9_Bildstapel_50µm_700x746_1880bis7755/201315_ZP9_Bildstapel_50µm_700x746_1880bis7755_'
+csv_file_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP1/grid_size={}_threshold_porosity={}.csv'.format(grid_size_in_bit, threshold_porosity_abs)
+img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP1/201315_ZP1_Bildstapel_50µm_700x746_1980bis7760/201315_ZP1_Bildstapel_50µm_700x746_1980bis7760_'
 
 
 show_images = False
