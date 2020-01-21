@@ -31,6 +31,19 @@ print("[INFO] loading images...")
 data = []
 labels = []
 
+
+image_paths = []
+for
+
+
+
+
+
+
+
+
+
+
 # grab the image paths and randomly shuffle them
 imagePaths = sorted(list(paths.list_images(args["dataset"])))
 random.seed(42)
