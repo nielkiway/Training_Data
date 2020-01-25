@@ -14,7 +14,7 @@ from combination_autocontour_Grid import show_window_with_user_setting
 
 
 # input
-stl_circle_image_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP1/201315_ZP1_Bildstapel_50µm_700x746_1980bis7760/ZP1_with_stl_circle0.tif'
+stl_circle_image_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP8/200124_ZP8_Bildstapel_50µm_700x746_1790bis7755/with_added_stlcircle0.tif'
 
 
 img = cv2.imread(stl_circle_image_path)
@@ -22,10 +22,10 @@ gray = cv2.imread(stl_circle_image_path, cv2.IMREAD_GRAYSCALE)
 
 # manually find the min and max values by looking at the ct picture with the perfect circle inside
 
-xmin = 23
-xmax = 526
-ymin = 112
-ymax = 615
+xmin = 154
+xmax = 679
+ymin = 115
+ymax = 640
 
 diameter_x = xmax-xmin
 diameter_y = ymax-ymin

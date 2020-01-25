@@ -14,32 +14,111 @@ a storage for the labelling information
 
 import cv2
 from combination_autocontour_Grid import show_window_with_user_setting
-from finding_minmax_values import xmin, xmax, ymin, ymax
+#from finding_minmax_values import xmin, xmax, ymin, ymax
 import numpy as np
 import math
 import pandas as pd
 
 
-# input data
-min_Slice = 396
-max_Slice = 1551
-
+number_zp = 3
+grid_size_in_bit = 874
+max_diameter_bit = 1748
 threshold_binary = 120
 correction_radius = 20  # radius difference for moving in the contour circle
-
 threshold_porosity_abs = 125
 # minimum number of pixels that must be black in order for the algorithm to classify the grid as pore-grid
 # needs to be set = 1 if no threshold should be applied
 
-grid_size_in_bit = 874
-max_diameter_bit = 1748
-
-csv_file_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP1/grid_size={}_threshold_porosity={}.csv'.format(grid_size_in_bit, threshold_porosity_abs)
-img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP1/201315_ZP1_Bildstapel_50µm_700x746_1980bis7760/201315_ZP1_Bildstapel_50µm_700x746_1980bis7760_'
-
-
 show_images = False
 show_label_generation = False
+
+if number_zp == 1:
+    xmin = 23
+    xmax = 526
+    ymin = 112
+    ymax = 615
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP1/201315_ZP1_Bildstapel_50µm_700x746_1980bis7760/201315_ZP1_Bildstapel_50µm_700x746_1980bis7760_'
+    min_Slice = 396
+    max_Slice = 1551
+
+elif number_zp == 2:
+    xmin = 63
+    xmax = 654
+    ymin = 41
+    ymax = 632
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP2/201315_ZP2_Bildstapel_50µm_700x746_2000bis7755/201315_ZP2_Bildstapel_50µm_700x746_2000bis7755_'
+    min_Slice = 340
+    max_Slice = 1491
+
+elif number_zp == 3:
+    xmin = 94
+    xmax = 665
+    ymin = 86
+    ymax = 657
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP3/201315_ZP3_Bildstapel_50µm_700x746_1995bis7755/201315_ZP3_Bildstapel_50µm_700x746_1995bis7755_'
+    min_Slice = 399
+    max_Slice = 1551
+
+elif number_zp == 4:
+    xmin = 20
+    xmax = 556
+    ymin = 90
+    ymax = 626
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/Zps/ZP4/200113_ZP4_Bildstapel_50µm_700x746_1905bis7905/200113_ZP4_Bildstapel_50µm_700x746_1905bis7905_'
+    min_Slice = 381
+    max_Slice = 1551
+
+elif number_zp == 5:
+    xmin = 33
+    xmax = 482
+    ymin = 115
+    ymax = 564
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP5/201315_ZP5_Bildstapel_50µm_700x746_1985bis7755/201315_ZP5_Bildstapel_50µm_700x746_1985bis7755_'
+    min_Slice = 397
+    max_Slice = 1551
+
+elif number_zp == 6:
+    xmin = 33
+    xmax = 535
+    ymin = 50
+    ymax = 552
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP6/201315_ZP6_Bildstapel_50µm_700x746_1740bis7755/201315_ZP6_Bildstapel_50µm_700x746_1740bis7755_'
+    min_Slice = 348
+    max_Slice = 1551
+
+elif number_zp == 7:
+    xmin = 22
+    xmax = 562
+    ymin = 105
+    ymax = 645
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP7/201315_ZP7_Bildstapel_50µm_900x746_1845bis7755/201315_ZP7_Bildstapel_50µm_900x746_1845bis7755_'
+    min_Slice = 369
+    max_Slice = 1551
+
+elif number_zp == 8:
+    xmin = 154
+    xmax = 679
+    ymin = 115
+    ymax = 640
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/Zps/ZP8/200124_ZP8_Bildstapel_50µm_700x746_1790bis7755/200124_ZP8_Bildstapel_50µm_700x746_1790bis7755_'
+    min_Slice = 358
+    max_Slice = 1551
+
+elif number_zp == 9:
+    xmin = 31
+    xmax = 498
+    ymin = 99
+    ymax = 566
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP9/201315_ZP9_Bildstapel_50µm_700x746_1880bis7755/201315_ZP9_Bildstapel_50µm_700x746_1880bis7755_'
+    min_Slice = 376
+    max_Slice = 1551
+
+else:
+    print('invalid number for ZP entered - try again!')
+
+
+
+csv_file_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP{}/grid_size={}_threshold_porosity={}.csv'.format(number_zp, grid_size_in_bit, threshold_porosity_abs)
 
 # basic calculations
 max_diameter_pixel = xmax-xmin
@@ -228,3 +307,5 @@ for img_number in range(number_slices_total):
 label_df = pd.DataFrame(data = label_storage_array, columns=(['Slice', 'x-grid', 'y-grid', 'Position', 'Poren', 'num Black pixels']))
 label_df.to_csv(csv_file_path)
 print('done')
+print(csv_file_path)
+print(xmin)
