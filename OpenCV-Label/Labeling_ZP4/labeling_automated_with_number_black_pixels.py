@@ -20,7 +20,7 @@ import math
 import pandas as pd
 
 
-number_zp = 3
+number_zp = 4
 grid_size_in_bit = 874
 max_diameter_bit = 1748
 threshold_binary = 120
@@ -64,7 +64,7 @@ elif number_zp == 4:
     xmax = 556
     ymin = 90
     ymax = 626
-    img_folder_path = '/home/jan/Documents/Trainingsdaten/Zps/ZP4/200113_ZP4_Bildstapel_50µm_700x746_1905bis7905/200113_ZP4_Bildstapel_50µm_700x746_1905bis7905_'
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP4/200113_ZP4_Bildstapel_50µm_700x746_1905bis7905/200113_ZP4_Bildstapel_50µm_700x746_1905bis7905_'
     min_Slice = 381
     max_Slice = 1551
 
@@ -100,7 +100,7 @@ elif number_zp == 8:
     xmax = 679
     ymin = 115
     ymax = 640
-    img_folder_path = '/home/jan/Documents/Trainingsdaten/Zps/ZP8/200124_ZP8_Bildstapel_50µm_700x746_1790bis7755/200124_ZP8_Bildstapel_50µm_700x746_1790bis7755_'
+    img_folder_path = '/home/jan/Documents/Trainingsdaten/ZPs/ZP8/200124_ZP8_Bildstapel_50µm_700x746_1790bis7755/200124_ZP8_Bildstapel_50µm_700x746_1790bis7755_'
     min_Slice = 358
     max_Slice = 1551
 
